@@ -13,7 +13,8 @@ Adafruit CircuitPython TinyLoRa
     :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_TinyLoRa
     :alt: Build Status
 
-CircuitPython Library for communicating with [The Things Network](https://www.thethingsnetwork.org/) using a Hope RF RFM95/96/97/98(W) LoRa Transceiver Module.
+CircuitPython Library for communicating with The Things Network.
+
 
 Dependencies
 =============
