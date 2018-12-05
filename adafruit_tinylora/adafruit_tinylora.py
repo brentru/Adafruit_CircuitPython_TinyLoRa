@@ -54,6 +54,7 @@ _MODE_STDBY = const(0x01)
 _MODE_TX = const(0x83)
 _TRANSMIT_DIRECTION_UP = const(0x00)
 # RFM Registers
+_REG_FIFO_BUFF= const(0x00)
 _REG_PA_CONFIG = const(0x09)
 _REG_PREAMBLE_MSB = const(0x20)
 _REG_PREAMBLE_LSB = const(0x21)
@@ -142,8 +143,7 @@ class TinyLoRa:
         self._device = adafruit_bus_device.spi_device.SPIDevice(spi, cs, baudrate=4000000,
                                                                 polarity=0, phase=0)
         # Verify the version of the RFM module
-        self._version = self._read_u8(_REG_VERSION)
-        if self._version != 18:
+        if self._read_u8(_REG_VERSION) != 18:
             raise TypeError("Can not detect LoRa Modle. Please check wiring!")
         # Set Frequency registers
         self._rfm_msb = None
@@ -241,7 +241,7 @@ class TinyLoRa:
         # wait for RFM to enter standby mode
         time.sleep(0.01)
         # switch interrupt to txdone
-        self._write_u8(0x40, 0x40)
+        self._write_u8(_REG_DIO_MAPPING_1, 0x40)
         # check for multi-channel configuration
         if self._channel is None:
             self._tx_random = randint(0, 7)
@@ -257,7 +257,7 @@ class TinyLoRa:
             self._write_u8(pair[0], pair[1])
         # fill the FIFO buffer with the LoRa payload
         for k in range(packet_length):
-            self._write_u8(0x00, lora_packet[k])
+            self._write_u8(_REG_FIFO_BUFF, lora_packet[k])
         # switch RFM to TX operating mode
         self._write_u8(_REG_OPERATING_MODE, _MODE_TX)
         # wait for TxDone IRQ, poll for timeout.

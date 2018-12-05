@@ -268,10 +268,9 @@ class AES():
         # aes encryption on block_b
         self._aes_encrypt(block_b, self._network_key)
         # copy block_b to old_data
-        for i in range(16):
-            old_data[i] = block_b[i]
-        block_counter = 1
+        old_data[0:16] = block_b[0:16]
         # calculate until n-1 packet blocks
+        block_counter = 1
         while block_counter < num_blocks:
             # copy data into array
             k = 0  # ptr
@@ -283,14 +282,12 @@ class AES():
             # aes encrypt new_data
             self._aes_encrypt(new_data, self._network_key)
             # copy new_data to old_data
-            for i in range(16):
-                old_data[i] = new_data[i]
+            old_data[0:16] = new_data[0:16]
             # increase block_counter
             block_counter += 1
         # perform calculation on last block
         if incomplete_block_size == 0:
-            for i in range(16):
-                new_data[i] = lora_packet[i]
+            new_data[0:16] = lora_packet[0:16]
             # xor with key 1
             self._xor_data(new_data, key_k1)
             # xor with old data
@@ -304,9 +301,9 @@ class AES():
                 if i < incomplete_block_size:
                     new_data[k] = lora_packet[i]
                     k += 1
-                if i == incomplete_block_size:
+                elif i == incomplete_block_size:
                     new_data[i] = 0x80
-                if i > incomplete_block_size:
+                elif i > incomplete_block_size:
                     new_data[i] = 0x00
             # perform xor with key 2
             self._xor_data(new_data, key_k2)
@@ -314,6 +311,7 @@ class AES():
             self._xor_data(new_data, old_data)
             self._aes_encrypt(new_data, self._network_key)
         # load MIC[] with data
+        #mic[0:3] = new_data[0:3]
         mic[0] = new_data[0]
         mic[1] = new_data[1]
         mic[2] = new_data[2]
@@ -324,7 +322,6 @@ class AES():
     def _mic_generate_keys(self, key_1, key_2):
         # encrypt the 0's in k1 with network key
         self._aes_encrypt(key_1, self._network_key)
-        # perform gen_key on key_1
         # check if key_1's msb is 1
         msb_key = (key_1[0] & 0x80) == 0x80
         # shift k1 left 1b
